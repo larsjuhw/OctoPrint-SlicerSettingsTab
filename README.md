@@ -1,17 +1,18 @@
 # OctoPrint-SlicerSettingsTab
 
-**TODO:** Describe what your plugin does.
+Adds a tab that displays the slicer settings for the currently selected file.
 
 ## Setup
 
 Install via the bundled [Plugin Manager](https://github.com/foosel/OctoPrint/wiki/Plugin:-Plugin-Manager)
 or manually using this URL:
 
-    https://github.com/tjjfvi/OctoPrint-SlicerSettingsTab/archive/master.zip
+	https://github.com/tjjfvi/OctoPrint-SlicerSettingsTab/archive/master.zip
 
-**TODO:** Describe how to install your plugin, if more needs to be done than just installing it via pip or through
-the plugin manager.
+You also need to install: [OctoPrint-SlicerSettingsParser](https://github.com/tjjfvi/OctoPrint-SlicerSettingsParser)
+
+*Note: you can instead install some other plugin that adds a metadata dict under `slicer_settings`*
 
 ## Configuration
 
-**TODO:** Describe your plugin's configuration options (if any).
+None yet.
