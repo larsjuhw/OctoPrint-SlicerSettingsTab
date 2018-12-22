@@ -1,0 +1,36 @@
+<div id="SST-message" data-bind="ifnot: displaySettings">
+	<div>
+		<h3 data-bind="visible: updating">
+			<i class="icon-spinner icon-spin"></i>
+			{{ _("Retrieving Slicer Settings") }}
+		</h3>
+
+		<h3 data-bind="visible: !fileSelected()">{{ _("No File Selected") }}</h3>
+
+		<!-- ko if: !settings().length && !updating() && fileSelected() -->
+			<h3 >{{ _("No Slicer Settings") }}</h3>
+			<small>{{ _("(for this file)") }}</small>
+		<!-- /ko -->
+	</div>
+</div>
+<div id="SST-settings" data-bind="if: displaySettings">
+	<div>
+		<i class="fa fa-search"></i>
+		<input type="search" data-bind="textInput: filterString"/>
+	</div>
+	<table class="table">
+		<thead><tr>
+			<th>{{ _("Setting") }}</th>
+			<th>{{ _("Value") }}</th>
+		</tr></thead>
+		<tbody data-bind="foreach: settings">
+			<!-- ko with: filterHelpers($root.filterString) -->
+				<tr data-bind="visible: match, style: { order: orderInt() }">
+					<td data-bind="html: highlight(escape(key))"></td>
+					<td data-bind="html: highlight(escape(value))"></td>
+				</tr>
+			<!-- /ko -->
+		</tbody>
+	</table>
+</div>
+<!-- .sort((a, b) => a.key > b.key).sort((a, b) => b.order($root.filterString()) - a.order($root.filterString())) -->

@@ -1,0 +1,39 @@
+#SST-message > div {
+  height: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#SST-message h3 {
+  margin: 0;
+}
+#SST-settings {
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+#SST-settings > div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+#SST-settings > div > .fa {
+  flex: 0 0;
+  margin: 0 10px;
+}
+#SST-settings > div > input {
+  flex-grow: 1;
+  margin: 0;
+}
+#SST-settings table tbody {
+  display: flex;
+  flex-direction: column;
+}
+#SST-settings table tr {
+  display: flex;
+}
+#SST-settings table td,
+#SST-settings table th {
+  flex: 1 1;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+}
