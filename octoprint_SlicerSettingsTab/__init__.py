@@ -18,7 +18,7 @@ class SlicerSettingsTabPlugin(
 	def get_update_information(self):
 		return dict(
 			SlicerSettingsTab=dict(
-				displayName="Slicersettingstab Plugin",
+				displayName="SlicerSettingsTab Plugin",
 				displayVersion=self._plugin_version,
 
 				type="github_release",
