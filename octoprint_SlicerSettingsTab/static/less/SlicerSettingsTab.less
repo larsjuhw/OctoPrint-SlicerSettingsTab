@@ -43,8 +43,46 @@
 
 		& td, & th {
 			flex: 1 1;
+			position: relative;
+		}
+
+		& td > span:first-child {
 			word-wrap: break-word;
 			white-space: pre-wrap;
+		}
+	}
+}
+
+.SST-copyButton {
+	&, & span {
+		display: inline-flex;
+		align-items: center;
+		justify-content: flex-end;
+
+		position: absolute;
+		right: 0;
+		top: 50%;
+
+		height: 100%;
+
+		transform: translate(0, -50%);
+	}
+
+	& span {
+		opacity: 0;
+		cursor: pointer;
+		transition: opacity .2s, color .2s;
+
+		*:hover > & {
+			opacity: 1;
+		}
+
+		&:hover {
+			opacity: .7;
+		}
+
+		&.done {
+			color: #27ae60;
 		}
 	}
 }

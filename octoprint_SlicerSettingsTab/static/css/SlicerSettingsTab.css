@@ -34,6 +34,34 @@
 #SST-settings table td,
 #SST-settings table th {
   flex: 1 1;
+  position: relative;
+}
+#SST-settings table td > span:first-child {
   word-wrap: break-word;
   white-space: pre-wrap;
+}
+.SST-copyButton,
+.SST-copyButton span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  height: 100%;
+  transform: translate(0, -50%);
+}
+.SST-copyButton span {
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity .2s, color .2s;
+}
+*:hover > .SST-copyButton span {
+  opacity: 1;
+}
+.SST-copyButton span:hover {
+  opacity: .7;
+}
+.SST-copyButton span.done {
+  color: #27ae60;
 }

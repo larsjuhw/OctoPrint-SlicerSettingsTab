@@ -25,12 +25,23 @@
 		</tr></thead>
 		<tbody data-bind="foreach: settings">
 			<!-- ko with: filterHelpers($root.filterString) -->
-				<tr data-bind="visible: match, style: { order: orderInt() }">
-					<td data-bind="html: highlight(escape(key))"></td>
-					<td data-bind="html: highlight(escape(value))"></td>
+				<tr data-bind="
+					visible: match,
+					style: { order: orderInt() },
+					foreach: [key, value].map(a => Object.assign(Object.create($data), { data: a })),
+				">
+					<td>
+						<span data-bind="html: highlight(escape(data))"></span>
+						<span class="SST-copyButton" data-bind="template: copyButton(data)"></span>
+					</td>
 				</tr>
 			<!-- /ko -->
 		</tbody>
 	</table>
 </div>
-<!-- .sort((a, b) => a.key > b.key).sort((a, b) => b.order($root.filterString()) - a.order($root.filterString())) -->
+
+<script id="SST-copyButton-template" type="text/html">
+	<span data-bind="click: onClick, css: { done }">
+		<i class="fa fa-copy"></i>
+	</span>
+</script>
