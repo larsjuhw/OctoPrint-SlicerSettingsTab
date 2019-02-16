@@ -25,12 +25,12 @@ $(function() {
 			self.updating(true);
 			self.fileSelected(true);
 
-			let { job: { file: { path } } } = await new Promise(resolve => $.get("/api/job", resolve));
+			let { job: { file: { path } } } = await new Promise(resolve => $.get("api/job", resolve));
 
 			if(path === null)
 				return self.updating(false), self.fileSelected(false);
 
-			let { files } = await new Promise(resolve => $.get("/api/files/local?recursive=true", resolve));
+			let { files } = await new Promise(resolve => $.get("api/files/local?recursive=true", resolve));
 
 			let r = files => files.map(f => f.type === "folder" ? r(f.children) : f);
 			files = r(files);
