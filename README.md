@@ -1,3 +1,5 @@
+This fork is updated to work with Python 3
+
 # OctoPrint-SlicerSettingsTab
 
 Adds a tab that displays the slicer settings for the currently selected file.
