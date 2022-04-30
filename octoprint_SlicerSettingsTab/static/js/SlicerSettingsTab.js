@@ -81,8 +81,8 @@ $(function() {
 			let self = Object.assign(Object.create(this), {
 				match: ko.pureComputed(() =>
 					splitFilterString().every(s =>
-						key.includes(s) ||
-						value.includes(s)
+						key.toLowerCase().includes(s.toLowerCase()) ||
+						value.toLowerCase().includes(s.toLowerCase())
 					)
 				),
 				highlight: text => ko.pureComputed(() =>
