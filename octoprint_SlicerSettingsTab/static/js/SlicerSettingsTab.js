@@ -7,7 +7,6 @@ $(function() {
 	function SlicerSettingsTabViewModel(parameters) {
 				var self = this;
 
-		console.log(this);
 
 		self.filterString = ko.observable("");
 
@@ -39,7 +38,6 @@ $(function() {
 
 			self.updating(false);
 
-			console.log(file.slicer_settings);
 
 			if(!file.slicer_settings)
 				return self.settings([]);
@@ -50,7 +48,6 @@ $(function() {
 					.filter(s => s.key().length)
 			)
 
-			console.log(self.settings());
 		}
 
 		self.refresh();
@@ -71,7 +68,6 @@ $(function() {
 
 		self.copyButton = text => new CopyButton(text);
 
-		console.log([value, self.value()]);
 
 		self.filterHelpers = filterString => {
 			let splitFilterString = ko.pureComputed(() =>
