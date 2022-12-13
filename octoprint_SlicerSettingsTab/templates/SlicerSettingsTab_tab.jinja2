@@ -28,11 +28,16 @@
 				<tr data-bind="
 					visible: match,
 					style: { order: orderInt() },
-					foreach: [key, value].map(a => Object.assign(Object.create($data), { data: a })),
+					click: $root.clickFavorite,
+					css: { SSThighlightedRow: isFavorite}
 				">
 					<td>
-						<span data-bind="html: highlight(escape(data))"></span>
-						<span class="SST-copyButton" data-bind="template: copyButton(data)"></span>
+						<span data-bind="html: highlight(escape(key))"></span>
+						<span class="SST-copyButton" data-bind="template: copyButton(key)"></span>
+					</td>
+					<td>
+						<span data-bind="html: highlight(escape(value))"></span>
+						<span class="SST-copyButton" data-bind="template: copyButton(value)"></span>
 					</td>
 				</tr>
 			<!-- /ko -->

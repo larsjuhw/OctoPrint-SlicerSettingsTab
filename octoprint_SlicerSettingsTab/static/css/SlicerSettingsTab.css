@@ -65,3 +65,6 @@
 .SST-copyButton span.done {
   color: #27ae60;
 }
+.SSThighlightedRow {
+  background-color: yellow;
+}

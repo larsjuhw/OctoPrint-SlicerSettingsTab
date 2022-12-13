@@ -5,6 +5,7 @@ import octoprint.plugin
 class SlicerSettingsTabPlugin(
 	octoprint.plugin.AssetPlugin,
 	octoprint.plugin.TemplatePlugin,
+	octoprint.plugin.SettingsPlugin
 ):
 
 	def get_assets(self):
@@ -13,6 +14,11 @@ class SlicerSettingsTabPlugin(
 			css=["css/SlicerSettingsTab.css"],
 			less=["less/SlicerSettingsTab.less"]
 		)
+
+	def get_settings_defaults(self):
+		return {
+			"favorites": []
+		}
 
 	def get_update_information(self):
 		return {

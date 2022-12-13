@@ -1,13 +1,15 @@
 $(function() {
 	OCTOPRINT_VIEWMODELS.push({
-				construct: SlicerSettingsTabViewModel,
-				elements: ["#tab_plugin_SlicerSettingsTab"]
-		});
+		construct: SlicerSettingsTabViewModel,
+		dependencies: ["settingsViewModel"],
+		elements: ["#tab_plugin_SlicerSettingsTab"]
+	});
 
 	function SlicerSettingsTabViewModel(parameters) {
-				var self = this;
-
-
+		var self = this;
+		
+		self.settingsViewModel = parameters[0];
+		console.log(self);
 		self.filterString = ko.observable("");
 
 		self.settings = ko.observableArray([]);
@@ -19,6 +21,26 @@ $(function() {
 		self.displaySettings = ko.pureComputed(() =>
 			self.fileSelected() && !self.updating() && self.settings().length
 		)
+
+		self.clickFavorite = async (setting, evt) => {
+			let key = setting.key();
+			if (setting.isFavorite()) {
+				self.favorites.splice(self.favorites.indexOf(key), 1);
+				console.log('removing');
+			} else {
+				self.favorites.push(key);
+				console.log('adding');
+			}
+			let payload = JSON.stringify({plugins: {SlicerSettingsTab: {favorites: self.favorites}}});
+			$.ajax({
+				url: API_BASEURL + "settings",
+			    type: "POST",
+				data:  payload,
+				contentType: "application/json; charset=UTF-8",
+			});
+			setting.isFavorite(!setting.isFavorite());
+			console.log(setting);
+		}
 
 		self.refresh = async () => {
 			self.updating(true);
@@ -44,30 +66,35 @@ $(function() {
 
 			self.settings(
 				Object.entries(file.slicer_settings)
-					.map(([k, v]) => new Setting(k, v))
+					.map(([k, v]) => new Setting(k, v, self.favorites.includes(k)))
 					.filter(s => s.key().length)
 			)
 
 		}
 
-		self.refresh();
-
+		
 		self.onEventFileSelected = self.refresh;
 		self.onEventFileDeselected = () => self.fileSelected(false);
-		}
+		
+		self.onBeforeBinding = () => {
+			console.log(self.settingsViewModel.settings.plugins.SlicerSettingsTab);
+			self.favorites = self.settingsViewModel.settings.plugins.SlicerSettingsTab.favorites();
+			self.refresh();
+		};
+	}
 
-	function Setting(key, value){
+	function Setting(key, value, fav){
 		var self = this;
 
 		self.key = ko.observable(key.split("\\n").join("\n"));
 		self.value = ko.observable(value.split("\\n").join("\n"));
-
+		
 		self.escape = text => ko.pureComputed(() =>
 			$("<span>").text(text()).html()
 		);
-
+		
 		self.copyButton = text => new CopyButton(text);
-
+		self.isFavorite = ko.observable(fav);
 
 		self.filterHelpers = filterString => {
 			let splitFilterString = ko.pureComputed(() =>
@@ -80,25 +107,21 @@ $(function() {
 					value.toLowerCase().includes(filterString().toLowerCase())
 				),
 				highlight: text => ko.pureComputed(() => {
-					if (filterString().trim() == '') {
-						return text();
+					let filter = filterString()
+					let txt = text();
+					if (filter.trim() == '') {
+						return txt;
 					}
-					let startIndex = text().toLowerCase().indexOf(filterString().toLowerCase());
+					let startIndex = txt.toLowerCase().indexOf(filter.toLowerCase());
 					if (startIndex == -1) {
-						return text();
+						return txt;
 					}
-					let endIndex = startIndex + filterString().length;
-					return text().substring(0, startIndex) + "<b>" + text().substring(startIndex, endIndex) + "</b>" + text().substring(endIndex);
+					let endIndex = startIndex + filter.length;
+					return `${txt.substring(0, startIndex)}<b>${txt.substring(startIndex, endIndex)}</b>${txt.substring(endIndex)}`;
 				}),
-				order: ko.pureComputed(() =>
-					splitFilterString().map(s => [
-							key.includes(s) ? s.length /	 key.length : 0,
-						value.includes(s) ? s.length / value.length : 0,
-					]).reduce((a, b) => a.map((n, i) => n + b[i]), [0, 0])
-				),
-				orderInt: ko.pureComputed(() =>
-					-Math.round(1e5 * self.order().reduce((a, b) => a * 10000 + b, 0))
-				),
+				orderInt: ko.pureComputed(() => {
+					return self.isFavorite() ? -1 : 0;
+				}),
 			});
 
 			return self;
