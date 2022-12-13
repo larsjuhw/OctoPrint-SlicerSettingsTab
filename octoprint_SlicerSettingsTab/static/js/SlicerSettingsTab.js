@@ -75,17 +75,21 @@ $(function() {
 			);
 
 			let self = Object.assign(Object.create(this), {
-				match: ko.pureComputed(() =>
-					splitFilterString().every(s =>
-						key.toLowerCase().includes(s.toLowerCase()) ||
-						value.toLowerCase().includes(s.toLowerCase())
-					)
+				match: ko.pureComputed(() => filterString().trim() == '' ||
+					key.toLowerCase().includes(filterString().toLowerCase()) ||
+					value.toLowerCase().includes(filterString().toLowerCase())
 				),
-				highlight: text => ko.pureComputed(() =>
-					splitFilterString().reduce((text, s) =>
-						text.replace(s, `<b>${s}</b>`)
-					, text())
-				),
+				highlight: text => ko.pureComputed(() => {
+					if (filterString().trim() == '') {
+						return text();
+					}
+					let startIndex = text().toLowerCase().indexOf(filterString().toLowerCase());
+					if (startIndex == -1) {
+						return text();
+					}
+					let endIndex = startIndex + filterString().length;
+					return text().substring(0, startIndex) + "<b>" + text().substring(startIndex, endIndex) + "</b>" + text().substring(endIndex);
+				}),
 				order: ko.pureComputed(() =>
 					splitFilterString().map(s => [
 							key.includes(s) ? s.length /	 key.length : 0,
