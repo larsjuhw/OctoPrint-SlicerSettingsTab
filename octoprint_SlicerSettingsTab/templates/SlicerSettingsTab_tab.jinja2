@@ -14,11 +14,15 @@
 	</div>
 </div>
 <div id="SST-settings" data-bind="if: displaySettings">
+	<div id="SST-fav-alert" class="alert alert-info" data-bind="visible: displayFavAlert, click: dismissAlert">
+		<button type="button" class="close" data-bind="click: dismissAlert">&times;</button>
+		<a href="#"><strong>Tip:</strong> You can add settings to your favorites by clicking on the text of the setting, which will pin the row to the top.</a>
+	</div>
 	<div>
 		<i class="fa fa-search"></i>
 		<input type="search" data-bind="textInput: filterString"/>
 	</div>
-	<table class="table">
+	<table class="table table-hover">
 		<thead><tr>
 			<th>{{ _("Setting") }}</th>
 			<th>{{ _("Value") }}</th>
@@ -27,12 +31,16 @@
 			<!-- ko with: filterHelpers($root.filterString) -->
 				<tr data-bind="
 					visible: match,
-					style: { order: orderInt() },
-					foreach: [key, value].map(a => Object.assign(Object.create($data), { data: a })),
+					css: { warning: isFavorite},
+					class: orderInt()
 				">
 					<td>
-						<span data-bind="html: highlight(escape(data))"></span>
-						<span class="SST-copyButton" data-bind="template: copyButton(data)"></span>
+						<span data-bind="html: highlight(escape(key)), click: $root.clickFavorite"></span>
+						<span class="SST-copyButton" data-bind="template: copyButton(key)"></span>
+					</td>
+					<td>
+						<span data-bind="html: highlight(escape(value))"></span>
+						<span class="SST-copyButton" data-bind="template: copyButton(value)"></span>
 					</td>
 				</tr>
 			<!-- /ko -->

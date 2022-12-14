@@ -65,3 +65,22 @@
 .SST-copyButton span.done {
   color: #27ae60;
 }
+.table tbody tr.favRow td {
+  font-weight: bold;
+}
+
+.table tbody tr.favRow.startMatch {
+  order: -2;
+}
+
+.table tbody tr.favRow {
+  order: -1;
+}
+
+.table tbody tr.startMatch {
+  order: 0;
+}
+
+.table tbody tr.noMatch {
+  order: 1;
+}

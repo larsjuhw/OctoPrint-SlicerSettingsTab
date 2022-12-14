@@ -1,11 +1,11 @@
 # coding=utf-8
-from __future__ import absolute_import
 
 import octoprint.plugin
 
 class SlicerSettingsTabPlugin(
 	octoprint.plugin.AssetPlugin,
 	octoprint.plugin.TemplatePlugin,
+	octoprint.plugin.SettingsPlugin
 ):
 
 	def get_assets(self):
@@ -15,22 +15,40 @@ class SlicerSettingsTabPlugin(
 			less=["less/SlicerSettingsTab.less"]
 		)
 
+	def get_settings_defaults(self):
+		return {
+			"favorites": [],
+			"favorites_alert_dismissed": False
+		}
+
 	def get_update_information(self):
-		return dict(
-			SlicerSettingsTab=dict(
-				displayName="SlicerSettingsTab Plugin",
-				displayVersion=self._plugin_version,
+		return {
+			"SlicerSettingsTab": {
+				"displayName": "SlicerSettingsTab Plugin",
+				"displayVersion": self._plugin_version,
 
-				type="github_release",
-				user="tjjfvi",
-				repo="OctoPrint-SlicerSettingsTab",
-				current=self._plugin_version,
+				"type": "github_release",
+				"user": "larsjuhw",
+				"repo": "OctoPrint-SlicerSettingsTab",
+				"current": self._plugin_version,
+				"stable_branch": {
+					"name": "Stable",
+					"branch": "master",
+					"comittish": ["master"],
+				}, "prerelease_branches": [
+					{
+						"name": "Release Candidate",
+						"branch": "rc",
+						"comittish": ["rc", "master"],
+					}
+				],
 
-				pip="https://github.com/tjjfvi/OctoPrint-SlicerSettingsTab/archive/{target_version}.zip"
-			)
-		)
+				"pip": "https://github.com/larsjuhw/OctoPrint-SlicerSettingsTab/archive/{target_version}.zip"
+			}
+		}
 
 __plugin_name__ = "SlicerSettingsTab"
+__plugin_pythoncompat__ = ">=2.7,<4"
 
 def __plugin_load__():
 	global __plugin_implementation__
