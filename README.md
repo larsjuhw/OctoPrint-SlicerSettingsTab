@@ -15,4 +15,6 @@ You also need to install: [OctoPrint-SlicerSettingsParser](https://github.com/la
 
 ## Configuration
 
-None yet.
+No configuration required.
+
+You can pin a setting to the top by clicking on the setting text.

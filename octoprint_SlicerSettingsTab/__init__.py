@@ -17,7 +17,8 @@ class SlicerSettingsTabPlugin(
 
 	def get_settings_defaults(self):
 		return {
-			"favorites": []
+			"favorites": [],
+			"favorites_alert_dismissed": False
 		}
 
 	def get_update_information(self):

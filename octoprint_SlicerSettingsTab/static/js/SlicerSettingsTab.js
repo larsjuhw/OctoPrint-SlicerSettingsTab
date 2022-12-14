@@ -1,7 +1,7 @@
 $(function() {
 	OCTOPRINT_VIEWMODELS.push({
 		construct: SlicerSettingsTabViewModel,
-		dependencies: ["settingsViewModel"],
+		dependencies: ["settingsViewModel", "filesViewModel"],
 		elements: ["#tab_plugin_SlicerSettingsTab"]
 	});
 
@@ -9,9 +9,10 @@ $(function() {
 		var self = this;
 		
 		self.settingsViewModel = parameters[0];
-		console.log(self);
-		self.filterString = ko.observable("");
+		self.filesViewModel = parameters[1];
 
+		self.filterString = ko.observable("");
+		
 		self.settings = ko.observableArray([]);
 		self.sortedSettings = ko.observableArray([]);
 
@@ -26,10 +27,8 @@ $(function() {
 			let key = setting.key();
 			if (setting.isFavorite()) {
 				self.favorites.splice(self.favorites.indexOf(key), 1);
-				console.log('removing');
 			} else {
 				self.favorites.push(key);
-				console.log('adding');
 			}
 			let payload = JSON.stringify({plugins: {SlicerSettingsTab: {favorites: self.favorites}}});
 			$.ajax({
@@ -39,30 +38,31 @@ $(function() {
 				contentType: "application/json; charset=UTF-8",
 			});
 			setting.isFavorite(!setting.isFavorite());
-			console.log(setting);
 		}
 
-		self.refresh = async () => {
+		self.refresh = async (payload) => {
 			self.updating(true);
 			self.fileSelected(true);
 
-			let { job: { file: { path } } } = await new Promise(resolve => $.get("api/job", resolve));
+			if (payload.path === undefined) return self.updating(false), self.fileSelected(false);
+			if (self.filesViewModel.filesOnlyList().length == 0) return self.updating(false), self.fileSelected(false);
 
-			if(path === null)
-				return self.updating(false), self.fileSelected(false);
+			var list = self.filesViewModel.filesOnlyList();
 
-			let { files } = await new Promise(resolve => $.get("api/files/local?recursive=true", resolve));
-
-			let r = files => files.map(f => f.type === "folder" ? r(f.children) : f);
-			files = r(files);
-
-			let file = files.flat(Infinity).filter(f => f.path === path)[0];
+			let file;
+			if (list.length > 0) {
+				file = list.find(elem => elem.path === payload.path);
+			}
 
 			self.updating(false);
 
+			if (file === undefined) {
+				return self.fileSelected(false);
+			}
 
-			if(!file.slicer_settings)
+			if (!file.slicer_settings) {
 				return self.settings([]);
+			}
 
 			self.settings(
 				Object.entries(file.slicer_settings)
@@ -72,15 +72,36 @@ $(function() {
 
 		}
 
-		
+		// Use the first six data receive events to refresh
+		self.fetch_attempts = 0;
+		self.fromCurrentData = (data) => {
+			console.log(data);
+			self.refresh({path: data.job.file.path});
+			if (self.fileSelected() || ++self.fetch_attempts > 5) {
+				self.fromCurrentData = undefined;
+			}
+		};
 		self.onEventFileSelected = self.refresh;
 		self.onEventFileDeselected = () => self.fileSelected(false);
 		
 		self.onBeforeBinding = () => {
-			console.log(self.settingsViewModel.settings.plugins.SlicerSettingsTab);
-			self.favorites = self.settingsViewModel.settings.plugins.SlicerSettingsTab.favorites();
-			self.refresh();
+			let st = self.settingsViewModel.settings.plugins.SlicerSettingsTab;
+			console.log(st);
+			self.displayFavAlert = ko.observable(!st.favorites_alert_dismissed());
+			self.favorites = st.favorites();
 		};
+
+		self.dismissAlert = () => {
+			$("#SST-fav-alert").remove();
+			let payload = JSON.stringify({plugins: {SlicerSettingsTab: {favorites_alert_dismissed: true}}});
+			$.ajax({
+				url: API_BASEURL + "settings",
+				type: "POST",
+				data:  payload,
+				contentType: "application/json; charset=UTF-8",
+			});
+		}
+
 	}
 
 	function Setting(key, value, fav){
@@ -102,10 +123,12 @@ $(function() {
 			);
 
 			let self = Object.assign(Object.create(this), {
-				match: ko.pureComputed(() => filterString().trim() == '' ||
-					key.toLowerCase().includes(filterString().toLowerCase()) ||
-					value.toLowerCase().includes(filterString().toLowerCase())
-				),
+				match: ko.pureComputed(() => {
+					let filter = filterString().toLowerCase();
+					return filter.trim() == '' ||
+					key.toLowerCase().includes(filter) ||
+					value.toLowerCase().includes(filter)
+				}),
 				highlight: text => ko.pureComputed(() => {
 					let filter = filterString()
 					let txt = text();
@@ -120,7 +143,19 @@ $(function() {
 					return `${txt.substring(0, startIndex)}<b>${txt.substring(startIndex, endIndex)}</b>${txt.substring(endIndex)}`;
 				}),
 				orderInt: ko.pureComputed(() => {
-					return self.isFavorite() ? -1 : 0;
+					// Order has four ranks
+					// -1: if marked as favorite, 0: if key or value starts with filter, -2 if both, 1: otherwise
+					let filter = filterString().toLowerCase();
+					if (self.isFavorite()) {
+						if ((key.toLowerCase().startsWith(filter) || value.toLowerCase().startsWith(filter))) {
+							return "favRow startMatch";
+						}
+						return "favRow";
+					}
+					if ((key.toLowerCase().startsWith(filter) || value.toLowerCase().startsWith(filter))) {
+						return "startMatch";
+					}
+					return "noMatch";
 				}),
 			});
 
@@ -128,14 +163,14 @@ $(function() {
 		}
 	}
 
-	function CopyButton(text){
+	function CopyButton(text) {
 		let self = {};
 
 		self.text = text;
 		self.done = ko.observable(false);
 
 		self.onClick = () => {
-			copyTextToClipboard(text())
+			copyTextToClipboard(text());
 			self.done(true);
 			setTimeout(() => self.done(false), 1000);
 		}
@@ -171,9 +206,9 @@ $(function() {
 		if (!navigator.clipboard)
 			return fallbackCopyTextToClipboard(text);
 
-		navigator.clipboard.writeText(text).then(function() {
+		navigator.clipboard.writeText(text).then(function () {
 			console.log('Async: Copying to clipboard was successful!');
-		}, function(err) {
+		}, function (err) {
 			console.error('Async: Could not copy text: ', err);
 		});
 	}
